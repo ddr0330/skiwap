@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exhibition Match Maker Pilipinas</title>
+  <meta name="description" content="Find billiard players in the Philippines for casual games, exhibition matches, and negotiable match terms." />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">8</div>
+      <div>
+        <strong>Exhibition Match Maker Pilipinas</strong>
+        <span>Find your next billiard match</span>
+      </div>
+    </div>
+    <nav>
+      <a href="#players">Find Players</a>
+      <a href="#signup">Sign Up</a>
+      <a href="#requests">Requests</a>
+      <a href="#admin">Excel DB</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Bilyar matchmaking for the Philippines</p>
+        <h1>Hanap kalaban. Set location. Agree sa match terms.</h1>
+        <p class="lead">A lightweight web UI powered by an Excel workbook. Players can register their monicker, billiard hall, location, ranking, Facebook contact, and preferred stake.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#signup">Create Player Profile</a>
+          <a class="btn ghost" href="#players">Browse Players</a>
+        </div>
+        <p class="notice">The platform does not collect, hold, process, or guarantee wagers. Players must follow local laws and venue rules.</p>
+      </div>
+      <div class="hero-card">
+        <h2 id="featuredName">Loading players...</h2>
+        <p id="featuredRating">Excel database ready</p>
+        <div class="chips" id="featuredChips"></div>
+        <button class="btn primary full" onclick="scrollToSection('players')">Find a Match</button>
+      </div>
+    </section>
+
+    <section class="stats-grid" id="dashboard">
+      <article><strong id="statPlayers">0</strong><span>Players</span></article>
+      <article><strong id="statLooking">0</strong><span>Looking now</span></article>
+      <article><strong id="statHalls">0</strong><span>Billiard halls</span></article>
+      <article><strong id="statRequests">0</strong><span>Match requests</span></article>
+    </section>
+
+    <section class="panel" id="players">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Player directory</p>
+          <h2>Find Players</h2>
+        </div>
+        <button class="btn" onclick="exportExcel()">Export Updated Excel</button>
+      </div>
+
+      <div class="filters">
+        <input id="searchInput" placeholder="Search name, monicker, hall, city..." />
+        <select id="ratingMin"></select>
+        <select id="ratingMax"></select>
+        <select id="gameFilter">
+          <option value="">Any game</option>
+          <option>8-ball</option>
+          <option>9-ball</option>
+          <option>10-ball</option>
+          <option>Straight pool</option>
+          <option>Rotation</option>
+        </select>
+        <label class="check"><input type="checkbox" id="negotiableOnly" /> Negotiable only</label>
+      </div>
+
+      <div class="cards" id="playerCards"></div>
+    </section>
+
+    <section class="grid-2" id="signup">
+      <article class="panel">
+        <p class="eyebrow">Signup / profile</p>
+        <h2>Create Player Profile</h2>
+        <form id="signupForm" class="form">
+          <div class="row">
+            <label>Full name<input name="fullName" required /></label>
+            <label>Monicker<input name="monicker" required placeholder="e.g. Dodong Break" /></label>
+          </div>
+          <div class="row">
+            <label>Email<input name="email" type="email" required /></label>
+            <label>Mobile number<input name="mobile" required /></label>
+          </div>
+          <label>Facebook / Messenger URL<input name="facebook" required placeholder="https://facebook.com/..." /></label>
+          <div class="row">
+            <label>Billiard hall<input name="hall" required placeholder="e.g. Star Billiards" /></label>
+            <label>Hall location<input name="location" required placeholder="City / Province" /></label>
+          </div>
+          <div class="row">
+            <label>Ranking<select name="rating" id="ratingSelect" required></select></label>
+            <label>Preferred game<select name="game"><option>8-ball</option><option>9-ball</option><option>10-ball</option><option>Rotation</option><option>Any</option></select></label>
+          </div>
+          <div class="row">
+            <label>Preferred stake<input name="stake" placeholder="e.g. ₱500 race to 5" /></label>
+            <label>Status<select name="status"><option>Looking for match</option><option>Available today</option><option>Practice only</option><option>Not available</option></select></label>
+          </div>
+          <label class="check"><input type="checkbox" name="negotiable" checked /> Stake / match terms are negotiable</label>
+          <label>Bio / notes<textarea name="bio" rows="3" placeholder="Availability, rules, handicap notes..."></textarea></label>
+          <button class="btn primary" type="submit">Save to Browser Database</button>
+          <p class="form-note">After saving, click “Export Updated Excel” and replace the workbook in the site repo.</p>
+        </form>
+      </article>
+
+      <article class="panel ranking-panel">
+        <p class="eyebrow">Rating guide</p>
+        <h2>Ranking Dropdown</h2>
+        <div id="rankingList" class="ranking-list"></div>
+      </article>
+    </section>
+
+    <section class="grid-2" id="requests">
+      <article class="panel">
+        <p class="eyebrow">Challenge flow</p>
+        <h2>Create Match Request</h2>
+        <form id="requestForm" class="form">
+          <label>Opponent<select name="opponent" id="opponentSelect" required></select></label>
+          <div class="row">
+            <label>Game type<select name="game"><option>8-ball</option><option>9-ball</option><option>10-ball</option><option>Rotation</option></select></label>
+            <label>Race format<input name="race" placeholder="Race to 5" /></label>
+          </div>
+          <label>Proposed billiard hall / location<input name="location" placeholder="Hall and city" /></label>
+          <div class="row">
+            <label>Date and time<input name="datetime" type="datetime-local" /></label>
+            <label>Proposed stake<input name="stake" placeholder="₱1,000 / negotiable" /></label>
+          </div>
+          <label class="check"><input type="checkbox" name="negotiable" checked /> Negotiable</label>
+          <label>Message<textarea name="message" rows="3" placeholder="Tara race to 5, 9-ball?"></textarea></label>
+          <button class="btn primary" type="submit">Save Match Request</button>
+        </form>
+      </article>
+      <article class="panel">
+        <p class="eyebrow">Recent</p>
+        <h2>Match Requests</h2>
+        <div id="requestList" class="request-list"></div>
+      </article>
+    </section>
+
+    <section class="panel" id="admin">
+      <p class="eyebrow">Excel database only</p>
+      <h2>Admin Excel Controls</h2>
+      <div class="admin-actions">
+        <label class="file-upload">Import Excel Database<input type="file" id="excelFile" accept=".xlsx,.xls" /></label>
+        <button class="btn" onclick="downloadBlankTemplate()">Download Blank Template</button>
+        <button class="btn primary" onclick="exportExcel()">Export Updated Excel</button>
+      </div>
+      <p class="notice">On GitHub Pages, the website is static. New signups are saved in the visitor’s browser until exported. To publish changes for everyone, replace <code>data/BilliardMatchDatabase.xlsx</code> in the repository with the exported file.</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <script src="assets/app.js"></script>
+</body>
+</html>
